@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aplikasi Kantin Sekolah — Zavax Company</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app" id="app">
+
+  <!-- HEADER -->
+  <div class="topbar">
+    <div class="topbar-row">
+      <div class="brand-line">
+        <div class="brand-mark">Z</div>
+        <div>
+          <p class="brand-co">Zavax Company</p>
+          <h1 class="brand-title">Aplikasi Kantin Sekolah</h1>
+        </div>
+      </div>
+      <button class="cart-btn" id="cartBtn" onclick="goTo('cart')">
+        🧺 Keranjang
+        <span class="cart-badge" id="cartBadge" style="display:none;">0</span>
+      </button>
+    </div>
+    <p class="tagline">Pesan dulu, ambil pas jam istirahat. Nggak perlu antre lama-lama.</p>
+  </div>
+
+  <!-- RECOMMENDATION CORNER -->
+  <div class="rekom-wrap" id="rekomWrap"></div>
+
+  <!-- SCREEN: DASHBOARD / MENU -->
+  <section class="screen active" id="screen-dashboard">
+    <div class="tabs" id="tabs"></div>
+    <div class="menu-grid" id="menuGrid"></div>
+  </section>
+
+  <!-- SCREEN: CART -->
+  <section class="screen" id="screen-cart">
+    <button class="back-link" onclick="goTo('dashboard')">← Kembali ke menu</button>
+    <h2 style="font-size:19px;margin-bottom:14px;">Keranjang kamu</h2>
+    <div id="cartTicket"></div>
+    <button class="btn-primary" id="toFormBtn" onclick="goToForm()">Lanjut isi data diri</button>
+  </section>
+
+  <!-- SCREEN: FORM NAMA & KELAS -->
+  <section class="screen" id="screen-form">
+    <button class="back-link" onclick="goTo('cart')">← Kembali ke keranjang</button>
+    <h2 style="font-size:19px;margin-bottom:6px;">Data pemesan</h2>
+    <p style="font-size:12.5px;color:var(--steel);margin-bottom:18px;">Diisi supaya pesanan gampang dipanggil pas sudah siap.</p>
+    <div class="field" id="fieldNama">
+      <label for="inputNama">Nama lengkap</label>
+      <input id="inputNama" type="text" placeholder="cth. Rangga Pratama">
+      <div class="err-msg">Nama wajib diisi ya.</div>
+    </div>
+    <div class="field" id="fieldKelas">
+      <label for="inputKelas">Kelas</label>
+      <input id="inputKelas" type="text" placeholder="cth. 9A">
+      <div class="err-msg">Kelas wajib diisi ya.</div>
+    </div>
+    <button class="btn-primary" onclick="submitForm()">Lanjut ke checkout</button>
+  </section>
+
+  <!-- SCREEN: CHECKOUT SUMMARY -->
+  <section class="screen" id="screen-checkout">
+    <button class="back-link" onclick="goTo('form')">← Kembali</button>
+    <h2 style="font-size:19px;margin-bottom:14px;">Checkout</h2>
+    <div id="checkoutTicket"></div>
+    <button class="btn-primary" onclick="goTo('qris')">Bayar dengan QRIS</button>
+  </section>
+
+  <!-- SCREEN: QRIS -->
+  <section class="screen" id="screen-qris">
+    <button class="back-link" onclick="goTo('checkout')">← Ganti metode</button>
+    <div class="ticket">
+      <div class="ticket-head" style="display:flex;align-items:center;justify-content:space-between;">
+        <span class="ticket-eyebrow">Scan untuk bayar</span>
+        <span class="qris-badge">◈ QRIS</span>
+      </div>
+      <div class="qr-wrap"><div class="qr-frame" id="qrFrame"></div></div>
+      <p class="countdown" id="countdown">14:59</p>
+      <div class="ticket-body" style="padding-top:6px;">
+        <div class="ticket-row"><span class="item-name" style="font-weight:600;">Total tagihan</span><span class="item-name" id="qrisTotal">Rp0</span></div>
+        <div class="ticket-row"><span class="item-name" style="font-weight:600;">Order ID</span><span class="mono" id="qrisOrderId">—</span></div>
+      </div>
+    </div>
+    <p class="demo-note">Simulasi QRIS untuk keperluan demo — bukan transaksi nyata. Tekan salah satu tombol di bawah untuk mensimulasikan hasil pembayaran.</p>
+    <div class="demo-controls">
+      <button class="good" onclick="verify(true)">Simulasi: Berhasil</button>
+      <button class="bad" onclick="verify(false)">Simulasi: Gagal</button>
+    </div>
+  </section>
+
+  <!-- SCREEN: VERIFYING -->
+  <section class="screen" id="screen-verify">
+    <div class="center-screen">
+      <div class="spinner"></div>
+      <h2 style="font-size:17px;">Memverifikasi pembayaran…</h2>
+      <p class="result-sub">Tunggu sebentar, jangan tutup halaman ini.</p>
+    </div>
+  </section>
+
+  <!-- SCREEN: FAILED -->
+  <section class="screen" id="screen-failed">
+    <div class="center-screen">
+      <div class="stamp fail">GAGAL</div>
+      <h2 class="result-title">Pembayaran gagal</h2>
+      <p class="result-sub">Transaksi tidak berhasil diproses. Coba pindai ulang QR atau ulangi pembayaran.</p>
+      <button class="btn-primary" style="width:220px;" onclick="goTo('qris')">Coba lagi</button>
+      <button class="btn-secondary" style="width:220px;" onclick="goTo('dashboard')">Batalkan pesanan</button>
+    </div>
+  </section>
+
+  <!-- SCREEN: PROCESSING ORDER -->
+  <section class="screen" id="screen-processing">
+    <div class="center-screen">
+      <div class="spinner"></div>
+      <h2 style="font-size:17px;">Memproses pesanan…</h2>
+      <p class="result-sub">Struk pesanan kamu sedang disiapkan untuk kantin.</p>
+    </div>
+  </section>
+
+  <!-- SCREEN: SUCCESS -->
+  <section class="screen" id="screen-success">
+    <div class="center-screen">
+      <div class="stamp">LUNAS</div>
+      <h2 class="result-title">Pesanan selesai!</h2>
+      <p class="result-sub" id="successSub">Tunjukkan kode ini ke petugas kantin saat mengambil pesanan.</p>
+      <div class="order-code" id="successOrderId">—</div>
+      <button class="btn-primary" style="width:220px;" onclick="resetApp()">Pesan lagi</button>
+    </div>
+  </section>
+
+  <!-- floating cart bar -->
+  <div class="float-cart" id="floatCart">
+    <div class="fc-info"><b id="fcTotal">Rp0</b><div id="fcCount">0 item</div></div>
+    <button onclick="goTo('cart')">Lihat keranjang</button>
+  </div>
+
+  <!-- toast -->
+  <div class="toast" id="toast"></div>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
